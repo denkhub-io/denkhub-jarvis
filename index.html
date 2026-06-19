@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DenkHub Jarvis</title>
+  <link rel="icon" href="denkhub-kit/assets/denkhub-favicon.png">
+  <link rel="stylesheet" href="denkhub-kit/tokens/denkhub-core.css">
+  <link rel="stylesheet" href="css/desktop.css">
+</head>
+<body>
+  <canvas id="camera-canvas"></canvas>
+  <canvas id="overlay-canvas"></canvas>
+  <canvas id="hud-canvas"></canvas>
+
+  <div id="hand-cursor">
+    <div class="cursor-ring"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-crosshair h"></div>
+    <div class="cursor-crosshair v"></div>
+  </div>
+
+  <div id="windows-container"></div>
+
+  <div id="app-dock"></div>
+
+  <div class="hud-corner top-left">
+    <svg viewBox="0 0 120 120" class="hud-arc">
+      <path d="M 10 110 A 100 100 0 0 1 110 10" fill="none" stroke="rgba(41,151,255,0.25)" stroke-width="1"/>
+      <path d="M 10 90 A 80 80 0 0 1 90 10" fill="none" stroke="rgba(41,151,255,0.1)" stroke-width="0.5"/>
+    </svg>
+  </div>
+  <div class="hud-corner top-right">
+    <svg viewBox="0 0 120 120" class="hud-arc">
+      <path d="M 110 110 A 100 100 0 0 0 10 10" fill="none" stroke="rgba(41,151,255,0.25)" stroke-width="1"/>
+      <path d="M 110 90 A 80 80 0 0 0 30 10" fill="none" stroke="rgba(41,151,255,0.1)" stroke-width="0.5"/>
+    </svg>
+  </div>
+  <div class="hud-corner bottom-left">
+    <svg viewBox="0 0 120 120" class="hud-arc">
+      <path d="M 10 10 A 100 100 0 0 0 110 110" fill="none" stroke="rgba(41,151,255,0.25)" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="hud-corner bottom-right">
+    <svg viewBox="0 0 120 120" class="hud-arc">
+      <path d="M 110 10 A 100 100 0 0 1 10 110" fill="none" stroke="rgba(41,151,255,0.25)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div id="hud-left-panel">
+    <div class="hud-panel-title">TELEMETRIA</div>
+    <div class="hud-metric">
+      <span class="metric-label">FPS</span>
+      <span class="metric-value" id="hud-fps">--</span>
+      <div class="metric-bar"><div class="metric-fill" id="hud-fps-bar" style="width:0%"></div></div>
+    </div>
+    <div class="hud-metric">
+      <span class="metric-label">MANI</span>
+      <span class="metric-value" id="hud-hands">0</span>
+    </div>
+    <div class="hud-metric">
+      <span class="metric-label">GESTO</span>
+      <span class="metric-value" id="hud-gesture">IDLE</span>
+    </div>
+    <div class="hud-metric">
+      <span class="metric-label">MODO</span>
+      <span class="metric-value" id="hud-mode">HOME</span>
+    </div>
+    <div class="hud-divider"></div>
+    <div class="hud-panel-title">GESTI</div>
+    <div class="hud-gesture-row" data-gesture="open"><span class="gesture-dot"></span> Mano aperta: cursore</div>
+    <div class="hud-gesture-row" data-gesture="open"><span class="gesture-dot"></span> Punta e attendi: clicca</div>
+    <div class="hud-gesture-row" data-gesture="pinch"><span class="gesture-dot"></span> Pinch: seleziona</div>
+    <div class="hud-gesture-row" data-gesture="grab"><span class="gesture-dot"></span> Pinch e tieni: trascina</div>
+    <div class="hud-gesture-row" data-gesture="fist"><span class="gesture-dot"></span> Doppio pugno: home</div>
+  </div>
+
+  <div id="hud-right-panel">
+    <div class="hud-panel-title">SISTEMA</div>
+    <div class="hud-metric">
+      <span class="metric-label">FINESTRE</span>
+      <span class="metric-value" id="hud-windows">0</span>
+    </div>
+    <div class="hud-divider"></div>
+    <div class="hud-panel-title">POSIZIONE</div>
+    <div class="hud-metric">
+      <span class="metric-label">X</span>
+      <span class="metric-value" id="hud-x">--</span>
+    </div>
+    <div class="hud-metric">
+      <span class="metric-label">Y</span>
+      <span class="metric-value" id="hud-y">--</span>
+    </div>
+  </div>
+
+  <div id="status-bar">
+    <div class="status-left">
+      <span class="status-dot"></span>
+      <span id="status-fps">-- FPS</span>
+    </div>
+    <div class="status-center">
+      <span class="brand-text">DENKHUB <span class="text-gradient">JARVIS</span></span>
+    </div>
+    <div class="status-right">
+      <span id="status-time"></span>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <div id="taskbar-items"></div>
+    <button id="btn-add-window" class="taskbar-btn" title="Nuova nota">+</button>
+    <button id="btn-fullscreen" class="taskbar-btn" title="Schermo intero">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12">
+        <polyline points="6 1 1 1 1 6"/><polyline points="10 1 15 1 15 6"/>
+        <polyline points="6 15 1 15 1 10"/><polyline points="10 15 15 15 15 10"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="loading-screen">
+    <div class="loading-content">
+      <div class="loading-arc">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(41,151,255,0.1)" stroke-width="1"/>
+          <path d="M 50 8 A 42 42 0 0 1 92 50" fill="none" stroke="#2997ff" stroke-width="2" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1.2s" repeatCount="indefinite"/>
+          </path>
+          <circle cx="50" cy="50" r="28" fill="none" stroke="rgba(41,151,255,0.06)" stroke-width="0.5"/>
+          <circle cx="50" cy="50" r="4" fill="rgba(41,151,255,0.5)"/>
+        </svg>
+      </div>
+      <h1>DENKHUB <span class="text-gradient">JARVIS</span></h1>
+      <p id="loading-status">Inizializzazione sistemi...</p>
+      <button id="btn-enter-fullscreen" class="enter-btn" style="display:none;">ENTRA</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.min.js"></script>
+
+  <script src="js/kernel.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/registry.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/hands.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/input-router.js"></script>
+  <script src="js/mouse-input.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/keyboard.js"></script>
+  <script src="js/host-api.js"></script>
+  <script src="js/window-manager.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/clapper.js"></script>
+
+  <script src="apps/clock.js"></script>
+  <script src="apps/notes.js"></script>
+  <script src="apps/browser.js"></script>
+  <script src="apps/ai-chat.js"></script>
+  <script src="apps/system.js"></script>
+  <script src="apps/settings.js"></script>
+  <script src="apps/hello-world.js"></script>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
