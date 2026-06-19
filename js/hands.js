@@ -1,9 +1,10 @@
 /*
- * Hands: perception only. Reads MediaPipe landmarks each frame, derives a
- * stable palm cursor, smooths it with a One Euro filter, and classifies the
- * gesture (open, pinch, grab, fist). It then hands state plus cursor to the
- * InputRouter, which owns all interaction logic. The cursor follows the palm
- * center, not the thumb, so it does not jump when the thumb moves in to pinch.
+ * Hands: perception only. Reads MediaPipe landmarks each frame, tracks the
+ * thumb tip as the cursor, smooths it with a One Euro filter, and classifies
+ * the gesture (open, pinch, grab, fist). It then hands state plus cursor to
+ * the InputRouter, which owns all interaction logic. When a pinch starts the
+ * router briefly freezes the cursor, so the click lands where you were aiming
+ * even though the thumb moves in to pinch.
  *
  * Gestures:
  *   open       point and move the cursor
@@ -49,8 +50,6 @@ const HandsModule = (() => {
   let doublePinchCooldown = false;
   const DOUBLE_PINCH_WINDOW = 900;
   const MAX_SINGLE_PINCH_MS = 600;
-
-  const PALM_POINTS = [0, 5, 9, 13, 17];
 
   function init(callbacks) {
     callbacks = callbacks || {};
@@ -105,14 +104,9 @@ const HandsModule = (() => {
 
     const lm = hands[0];
 
-    let px = 0;
-    let py = 0;
-    for (const i of PALM_POINTS) {
-      px += lm[i].x;
-      py += lm[i].y;
-    }
-    px /= PALM_POINTS.length;
-    py /= PALM_POINTS.length;
+    const thumbTip = lm[4];
+    const px = thumbTip.x;
+    const py = thumbTip.y;
 
     const cover = (typeof CameraModule !== 'undefined') ? CameraModule.getCoverTransform() : null;
     let screenX;
