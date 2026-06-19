@@ -1,7 +1,5 @@
-<h1 align="center">DenkHub Jarvis</h1>
-
 <p align="center">
-  Un Jarvis che controlli a mani nude. Webcam dentro, gesti fuori, niente da installare.
+  <img src="docs/banner.svg" alt="DenkHub Jarvis" width="100%">
 </p>
 
 <p align="center">
