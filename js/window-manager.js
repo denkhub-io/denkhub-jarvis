@@ -369,7 +369,7 @@ const WindowManager = (() => {
     const el = container.querySelector(`[data-window-id="${id}"]`);
     if (!win || !el) return;
     const margin = 16;
-    const top = 44;
+    const top = 120;
     const bottom = 60;
     if (!win.maximized) {
       win.restore = { left: el.style.left, top: el.style.top, width: el.style.width, height: el.style.height };
@@ -442,7 +442,7 @@ const WindowManager = (() => {
     const cols = Math.ceil(Math.sqrt(n));
     const rows = Math.ceil(n / cols);
     const margin = 16;
-    const top = 44;
+    const top = 120;
     const bottom = 64;
     const gap = 12;
     const availW = window.innerWidth - margin * 2;

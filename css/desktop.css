@@ -652,12 +652,12 @@ html, body {
 /* APP DOCK (always visible at bottom) */
 #app-dock {
   position: fixed;
-  bottom: 10px;
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 99;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 8px;
   padding: 8px 12px;
   background: rgba(0, 0, 0, 0.6);
@@ -711,7 +711,7 @@ html, body {
 /* Hover / cursor over */
 .dock-app.hovered,
 .dock-app:hover {
-  transform: scale(1.15) translateY(-4px);
+  transform: scale(1.15) translateY(4px);
 }
 
 .dock-app.hovered .dock-app-icon,
