@@ -1096,3 +1096,37 @@ html, body {
 
 .osk-key.wide { min-width: 74px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
 .osk-key.space { min-width: 220px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* CLAPPER LEVEL METER */
+.clap-meter {
+  position: relative;
+  width: 170px;
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(41, 151, 255, 0.15);
+  overflow: hidden;
+}
+
+.clap-meter-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg, #2997ff, #64d2ff);
+  transition: width 0.05s linear;
+}
+
+.clap-meter-fill.over {
+  background: linear-gradient(90deg, #30d158, #6ee787);
+}
+
+.clap-meter-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: #ff9f0a;
+  box-shadow: 0 0 6px rgba(255, 159, 10, 0.6);
+}

@@ -29,27 +29,28 @@ const App = (() => {
     if (fsBtn) fsBtn.addEventListener('click', _toggleFullscreen);
 
     const enterBtn = document.getElementById('btn-enter-fullscreen');
+    const loadingScreen = document.getElementById('loading-screen');
+
+    const enter = () => {
+      _requestFullscreen();
+      setTimeout(() => loadingScreen.classList.add('hidden'), 300);
+      if (Clapper.getConfig().enabled) Clapper.start();
+    };
+    enterBtn.addEventListener('click', enter);
+    loadingScreen.addEventListener('click', (e) => {
+      if (e.target !== enterBtn) enter();
+    });
 
     try {
       await CameraModule.init(_handleFrame);
-      document.getElementById('loading-status').textContent = 'Sistemi pronti.';
-      enterBtn.style.display = 'inline-block';
-
-      const enter = () => {
-        _requestFullscreen();
-        setTimeout(() => {
-          document.getElementById('loading-screen').classList.add('hidden');
-        }, 300);
-        if (Clapper.getConfig().enabled) Clapper.start();
-      };
-
-      enterBtn.addEventListener('click', enter);
-      document.getElementById('loading-screen').addEventListener('click', (e) => {
-        if (e.target !== enterBtn) enter();
-      });
+      document.getElementById('loading-status').textContent = 'Sistemi pronti. Premi ENTRA.';
     } catch (err) {
-      document.getElementById('loading-status').textContent = 'Errore webcam: ' + err.message;
+      document.getElementById('loading-status').textContent =
+        'Webcam non disponibile. Controlla il permesso del browser e ricarica, oppure entra e usa il mouse.';
+      enterBtn.textContent = 'ENTRA (MOUSE)';
     }
+
+    enterBtn.style.display = 'inline-block';
 
     _updateStatusTime();
     setInterval(_updateStatusTime, 1000);

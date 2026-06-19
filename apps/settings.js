@@ -86,14 +86,44 @@ Jarvis.registerApp({
       section('Clapper');
       const clapHelp = document.createElement('div');
       clapHelp.className = 'settings-help';
-      clapHelp.textContent = 'Batti le mani due volte e le app scelte si aprono in griglia.';
+      clapHelp.textContent = 'Attiva il microfono qui sotto, poi batti le mani due volte. La barra mostra cosa sente il mic: un clap deve superare la tacca.';
       body.appendChild(clapHelp);
 
       const cfg = Clapper.getConfig();
-      toggleRow('Attiva Clapper (microfono)', cfg.enabled, (v) => {
-        Clapper.setConfig({ enabled: v });
-        if (v && !Clapper.isActive()) Clapper.start();
-        api.notify(v ? 'Clapper attivo' : 'Clapper spento');
+
+      const clapToggleRow = row('Attiva (microfono)');
+      const clapToggle = document.createElement('input');
+      clapToggle.type = 'checkbox';
+      clapToggle.className = 'settings-toggle';
+      clapToggle.checked = cfg.enabled;
+      clapToggle.addEventListener('change', async () => {
+        if (clapToggle.checked) {
+          const ok = await Clapper.start();
+          clapToggle.checked = ok;
+          api.notify(ok ? 'Clapper attivo. Batti le mani due volte.' : 'Microfono non disponibile.', { type: ok ? 'info' : 'warn' });
+        } else {
+          Clapper.stop();
+          api.notify('Clapper spento');
+        }
+      });
+      clapToggleRow.appendChild(clapToggle);
+
+      const meterRow = row('Livello mic');
+      const meter = document.createElement('div');
+      meter.className = 'clap-meter';
+      const meterFill = document.createElement('div');
+      meterFill.className = 'clap-meter-fill';
+      const meterMark = document.createElement('div');
+      meterMark.className = 'clap-meter-mark';
+      meter.appendChild(meterFill);
+      meter.appendChild(meterMark);
+      meterRow.appendChild(meter);
+      const METER_MAX = 0.5;
+      const setMark = (thr) => { meterMark.style.left = Math.min(100, (thr / METER_MAX) * 100) + '%'; };
+      setMark(cfg.threshold);
+      Clapper.onLevel((rms) => {
+        meterFill.style.width = Math.min(100, (rms / METER_MAX) * 100) + '%';
+        meterFill.classList.toggle('over', rms > Clapper.getConfig().threshold);
       });
 
       const appsRow = document.createElement('div');
@@ -117,8 +147,8 @@ Jarvis.registerApp({
       });
       body.appendChild(appsRow);
 
-      sliderRow('Sensibilita clap', cfg.threshold, 0.04, 0.30, 0.01, '',
-        (v) => Clapper.setConfig({ threshold: v }));
+      sliderRow('Soglia clap', cfg.threshold, 0.04, 0.30, 0.01, '',
+        (v) => { Clapper.setConfig({ threshold: v }); setMark(v); });
 
       const testRow = row('');
       const testBtn = document.createElement('button');
@@ -162,5 +192,7 @@ Jarvis.registerApp({
     }
 
     render();
+
+    return () => Clapper.onLevel(null);
   }
 });
